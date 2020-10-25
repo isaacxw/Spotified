@@ -1,0 +1,23 @@
+{
+  "name": "spotified",
+  "version": "1.0.0",
+  "description": "Spotify Listening Profile",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/isaacxw/Spotified.git"
+  },
+  "keywords": [],
+  "author": "Isaac Teh",
+  "license": "ISC",
+  "homepage": "https://github.com/isaacxw/Spotified.git#readme",
+  "engines": {
+    "node": "10.13.0"
+  },
+  "scripts": {
+    "client:install": "cd client && yarn",
+    "client": "cd client && yarn start",
+    "server": "node server",
+    "start": "node server",
+  }
+}
