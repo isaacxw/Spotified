@@ -2,7 +2,7 @@
   "name": "spotified",
   "version": "1.0.0",
   "description": "Spotify Listening Profile",
-  "main": "index.js",
+  "main": "server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/isaacxw/Spotified.git"

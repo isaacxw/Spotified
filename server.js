@@ -1,6 +1,6 @@
-/**
- * Spotify Web Authorization
- */
+// Spotify Server Side Web Authorization
+// https://developer.spotify.com/documentation/general/guides/authorization-guide/
+// https://github.com/spotify/web-api-auth-examples
 
 require('dotenv').config();
 
@@ -26,44 +26,44 @@ const numCPUs = require('os').cpus().length;
 const history = require('connect-history-api-fallback');
 
 /**
- * Generate random alpha-numerical strings given a length
- *
- * @param length {number}
- * @return string
+ * Generates a random string containing numbers and letters
+ * @param  {number} length The length of the string
+ * @return {string} The generated string
  */
 const generateRandomString = (length) => {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const alphaNums = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
     for (let i = 0; i < length; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
+        result += alphaNums.charAt(Math.floor(Math.random() * alphaNums.length));
     }
-
-    return text;
+    return result;
 };
 
 const stateKey = 'spotify_auth_state';
 
-// Make use of all CPU cores with multi-threading
+// Multi-process to utilize all CPU cores.
 if (cluster.isMaster) {
     console.warn(`Node cluster master ${process.pid} is running`);
 
+    // Fork workers.
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork();
     }
 
     cluster.on('exit', (worker, code, signal) => {
         console.error(
-            `Node cluster worker ${worker.process.pid} died: code -> ${code}, signal -> ${signal}`,
+            `Node cluster worker ${worker.process.pid} exited: code ${code}, signal ${signal}`,
         );
     });
 } else {
     const app = express();
 
-    app.use(express.static(path.resolve(__dirname, '../client/build')));
+    // Priority serve any static files.
+    app.use(express.static(path.resolve(__dirname, './client/build')));
 
     app
-        .use(express.static(path.resolve(__dirname, '../client/build')))
+        .use(express.static(path.resolve(__dirname, './client/build')))
         .use(cors())
         .use(cookieParser())
         .use(
@@ -76,16 +76,17 @@ if (cluster.isMaster) {
                 ],
             }),
         )
-        .use(express.static(path.resolve(__dirname, '../client/build')));
+        .use(express.static(path.resolve(__dirname, './client/build')));
 
-    app.get('/', function(req, res) {
-        res.render(path.resolve(__dirname, '../client/build/index.html'));
+    app.get('/', function (req, res) {
+        res.render(path.resolve(__dirname, './client/build/index.html'));
     });
 
-    app.get('/login', function(req, res) {
+    app.get('/login', function (req, res) {
         const state = generateRandomString(16);
         res.cookie(stateKey, state);
 
+        // your application requests authorization
         const scope =
             'user-read-private user-read-email user-read-recently-played user-top-read user-follow-read user-follow-modify playlist-read-private playlist-read-collaborative playlist-modify-public';
 
@@ -100,8 +101,10 @@ if (cluster.isMaster) {
         );
     });
 
-    // App requests refresh and access tokens
-    app.get('/callback', function(req, res) {
+    app.get('/callback', function (req, res) {
+        // your application requests refresh and access tokens
+        // after checking the state parameter
+
         const code = req.query.code || null;
         const state = req.query.state || null;
         const storedState = req.cookies ? req.cookies[stateKey] : null;
@@ -110,7 +113,7 @@ if (cluster.isMaster) {
             res.redirect(`/#${querystring.stringify({ error: 'state_mismatch' })}`);
         } else {
             res.clearCookie(stateKey);
-            const authOpt = {
+            const authOptions = {
                 url: 'https://accounts.spotify.com/api/token',
                 form: {
                     code: code,
@@ -118,18 +121,19 @@ if (cluster.isMaster) {
                     grant_type: 'authorization_code',
                 },
                 headers: {
-                    Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}: ${CLIENT_SECRET}`).toString(
+                    Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString(
                         'base64',
                     )}`,
                 },
                 json: true,
             };
 
-            request.post(authOpt, function (error, response, body) {
+            request.post(authOptions, function (error, response, body) {
                 if (!error && response.statusCode === 200) {
                     const access_token = body.access_token;
                     const refresh_token = body.refresh_token;
 
+                    // we can also pass the token to the browser to make requests from there
                     res.redirect(
                         `${FRONTEND_URI}/#${querystring.stringify({
                             access_token,
@@ -137,20 +141,19 @@ if (cluster.isMaster) {
                         })}`,
                     );
                 } else {
-                    res.redirect(`/#${querystring.stringify({
-                        error: 'invalid_token'
-                    })}`);
+                    res.redirect(`/#${querystring.stringify({ error: 'invalid_token' })}`);
                 }
             });
         }
     });
 
-    app.get('/refresh_token', function(req, res) {
-        const refresh_token =  req.query.refresh_token;
-        const authOpt = {
-            url: 'https://account.spotify.com/api/token',
+    app.get('/refresh_token', function (req, res) {
+        // requesting access token from refresh token
+        const refresh_token = req.query.refresh_token;
+        const authOptions = {
+            url: 'https://accounts.spotify.com/api/token',
             headers: {
-                Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}: ${CLIENT_SECRET}`).toString(
+                Authorization: `Basic ${new Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString(
                     'base64',
                 )}`,
             },
@@ -161,7 +164,7 @@ if (cluster.isMaster) {
             json: true,
         };
 
-        request.post(authOpt, function(error, response, body) {
+        request.post(authOptions, function (error, response, body) {
             if (!error && response.statusCode === 200) {
                 const access_token = body.access_token;
                 res.send({ access_token });
@@ -169,11 +172,12 @@ if (cluster.isMaster) {
         });
     });
 
-    app.get('*', function(req, res) {
-        res.sendFile(path.resolve(__dirname, '../client/public', 'index.html'));
+    // All remaining requests return the React app, so it can handle routing.
+    app.get('*', function (request, response) {
+        response.sendFile(path.resolve(__dirname, './client/public', 'index.html'));
     });
 
-    app.listen(PORT, function() {
-        console.warn(`Node cluster worker ${process.pid}: Listening on port ${PORT}`);
+    app.listen(PORT, function () {
+        console.warn(`Node cluster worker ${process.pid}: listening on port ${PORT}`);
     });
 }
