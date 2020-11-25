@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { token } from '../api';
 
 import LoginPage from './LoginPage';
-import Profile from './Profile';
+import Home from './Home';
 
 import styled from 'styled-components/macro';
 import { Global } from '../styles';
@@ -28,7 +28,7 @@ class App extends Component {
             <AppContainer>
                 <Global />
 
-                {token ? <Profile /> : <LoginPage />}
+                {token ? <Home /> : <LoginPage />}
             </AppContainer>
         );
     }
