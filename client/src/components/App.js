@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 import { token } from '../api';
 
 import LoginPage from './LoginPage';
@@ -11,6 +12,8 @@ const AppContainer = styled.div`
   height: 100%;
   min-height: 100vh;
 `;
+
+const TITLE = '🎧 Spotified';
 
 class App extends Component {
     state = {
@@ -26,6 +29,9 @@ class App extends Component {
 
         return (
             <AppContainer>
+                <Helmet>
+                    <title>{ TITLE }</title>
+                </Helmet>
                 <Global />
 
                 {token ? <Home /> : <LoginPage />}
