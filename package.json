@@ -19,7 +19,8 @@
     "client": "cd client && yarn start",
     "server": "node server",
     "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
-    "start": "node server"
+    "start": "node server",
+    "heroku-postbuild": "cd client/ && yarn && yarn install --production && yarn build"
   },
   "lint-staged": {
     "*.{js,css,json,md}": [

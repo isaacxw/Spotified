@@ -218,12 +218,12 @@ class User extends Component {
                             <Stats>
                                 <Stat>
                                     <Number>{user.followers.total}</Number>
-                                    <NumLabel>Followers</NumLabel>
+                                    <NumLabel>Total Followers</NumLabel>
                                 </Stat>
                                 {followedArtists && (
                                     <Stat>
                                         <Number>{followedArtists.artists.items.length}</Number>
-                                        <NumLabel>Following</NumLabel>
+                                        <NumLabel>Artists Following</NumLabel>
                                     </Stat>
                                 )}
                                 {totalPlaylists && (

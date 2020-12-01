@@ -1,0 +1,1 @@
+web: yarn && yarn client:install && yarn dev
