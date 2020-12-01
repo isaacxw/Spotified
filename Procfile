@@ -1,1 +1,1 @@
-web: yarn heroku:-postbuild
+web: yarn heroku-postbuild
