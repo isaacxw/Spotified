@@ -13,8 +13,6 @@ const AppContainer = styled.div`
   min-height: 100vh;
 `;
 
-const TITLE = '🎧 Spotified';
-
 class App extends Component {
     state = {
         token: '',
@@ -29,9 +27,6 @@ class App extends Component {
 
         return (
             <AppContainer>
-                <Helmet>
-                    <title>{ TITLE }</title>
-                </Helmet>
                 <Global />
 
                 {token ? <Home /> : <LoginPage />}
