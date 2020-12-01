@@ -1,1 +1,1 @@
-web: yarn && yarn client:install && yarn dev
+web: yarn heroku:-postbuild
