@@ -1,6 +1,6 @@
 # Spotified
 
-Spotified helps you visualize your listening habits and offer insights into your favorite artist, song, and playlist. 
+Spotified helps you visualize your listening habits and offer insights into your favorite artists, songs, and playlists. 
 
 
 ### Technologies Used
